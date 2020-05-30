@@ -6,17 +6,9 @@ namespace Task15
     {
         public static void Main(string[] args)
         {
-            var hospital = new Hospital(5, 5, 100);
-            try
-            {
-                hospital.StartSimulation();
-                Console.ReadKey();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            var hospital = new Hospital(2, 5, 10); 
+            hospital.StartSimulation();
+            Console.ReadKey();
         }
     }
 }

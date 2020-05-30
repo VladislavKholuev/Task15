@@ -15,25 +15,24 @@ namespace Task15
         private ConcurrentQueue<Patient> smallRoom;
         private ConcurrentDictionary<int, Patient> _queue;
         private Random rnd = new Random();
-        public static int Room { get; private set; } = 10;
+        public static int sizeRoom { get; private set; } = 10;
         public int time { get; }
         private int DoctorsCount { get; }
         public bool IsHasNewPatient => smallRoom.Count != 0;
-        private static int i = 0;
+        private static int id = 0;
         public bool IsHasInfectionInRoom => smallRoom.Any(x => x.IsInfected);
-        public Hospital(int doctorsCount, int examiningRoomSize, int timing)
+        public Hospital(int doctorsCount, int sizeRoomSize, int timing)
         {
-            Room = examiningRoomSize;
+            sizeRoom = sizeRoomSize;
             time = timing;
             DoctorsCount = doctorsCount;
             _doctors = new ConcurrentDictionary<int, Doctor>();
-            for (var i = 0; i < doctorsCount; i++) _doctors.GetOrAdd(i, new Doctor(this, i));
-
+            for (var i = 0; i < doctorsCount; i++) 
+                _doctors.GetOrAdd(i, new Doctor(this, i));
             _queue = new ConcurrentDictionary<int, Patient>();
             smallRoom = new ConcurrentQueue<Patient>();
         }
         
-
         public void StartSimulation()
         {
             StartNewPatient();
@@ -90,12 +89,12 @@ namespace Task15
             foreach (var patient in _queue)
             {
                 if (patient.Value.IsInfected)
-                    Console.Write("п-"+i+"(з), ");
+                    Console.Write("п-"+id+"(з), ");
                 else
-                    Console.Write("п-" + i + ", ");
+                    Console.Write("п-" + id + ", ");
             }
-            i++;
-            i = i % 10;
+            id++;
+            id = id % 10;
         }
 
         public Patient BeginInspection()
@@ -124,7 +123,7 @@ namespace Task15
             while (true)
             {
                 Thread.Sleep(time);
-                if (smallRoom.Count >= Room || _queue.Count == 0) continue;
+                if (smallRoom.Count >= sizeRoom || _queue.Count == 0) continue;
 
                 int queueId;
                 try
