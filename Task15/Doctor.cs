@@ -32,7 +32,6 @@ namespace Task15
                     Thread.Sleep(100);
                     continue;
                 }
-
                 _hospital.BeginInspection();
                 Inspection();
                 Consulting();

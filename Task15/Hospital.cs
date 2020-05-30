@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-
 namespace Task15
 {
     class Hospital
@@ -15,15 +14,15 @@ namespace Task15
         private ConcurrentQueue<Patient> smallRoom;
         private ConcurrentDictionary<int, Patient> _queue;
         private Random rnd = new Random();
-        public static int sizeRoom { get; private set; } = 10;
+        private int sizeRoom { get; }
         public int time { get; }
         private int DoctorsCount { get; }
         public bool IsHasNewPatient => smallRoom.Count != 0;
         private static int id = 0;
         public bool IsHasInfectionInRoom => smallRoom.Any(x => x.IsInfected);
-        public Hospital(int doctorsCount, int sizeRoomSize, int timing)
+        public Hospital(int doctorsCount, int timing, int sizeRoomSize = 10)
         {
-            sizeRoom = sizeRoomSize;
+            sizeRoom = Math.Abs(sizeRoomSize);
             time = timing;
             DoctorsCount = doctorsCount;
             _doctors = new ConcurrentDictionary<int, Doctor>();
@@ -39,7 +38,6 @@ namespace Task15
             StartDemonAsync();
             StartQueue();
             StartInfectionDemonAsync();
-
             foreach (var doctor in _doctors) 
                 doctor.Value.WorkAsync();
         }
@@ -56,7 +54,28 @@ namespace Task15
             });
         }
 
-
+        private void HospitalData()
+        {
+            Console.WriteLine();
+            Console.WriteLine("докторов " + DoctorsCount + " в смотровой " + smallRoom.Count + " в очереди " + _queue.Count);
+            Console.WriteLine("Смотровая");
+            foreach (var patient in smallRoom)
+                if (patient.IsInfected)
+                    Console.WriteLine("п(з), ");
+                else
+                    Console.WriteLine("п, ");
+            Console.WriteLine();
+            Console.WriteLine("Очередь");
+            foreach (var patient in _queue)
+            {
+                if (patient.Value.IsInfected)
+                    Console.Write("п-" + id + "(з), ");
+                else
+                    Console.Write("п-" + id + ", ");
+            }
+            id++;
+            id = id % 10;
+        }
         private async void StartNewPatient()
         {
             await Task.Run(NewPatDemon);
@@ -70,31 +89,6 @@ namespace Task15
                 _queue[newId] = new Patient();
                 Thread.Sleep(rnd.Next(1000));
             }
-        }
-
-        
-        private void HospitalData()
-        {
-            Console.WriteLine();
-            Console.WriteLine("докторов "+DoctorsCount+" в смотровой "+smallRoom.Count+" в очереди "+ _queue.Count);
-            Console.WriteLine("Смотровая");
-            foreach (var patient in smallRoom)
-                if (patient.IsInfected)
-                    Console.WriteLine("п(з), ");
-                else
-                    Console.WriteLine("п, "); 
-
-            Console.WriteLine();
-            Console.WriteLine("Очередь");
-            foreach (var patient in _queue)
-            {
-                if (patient.Value.IsInfected)
-                    Console.Write("п-"+id+"(з), ");
-                else
-                    Console.Write("п-" + id + ", ");
-            }
-            id++;
-            id = id % 10;
         }
 
         public Patient BeginInspection()
@@ -158,8 +152,6 @@ namespace Task15
             while (true)
             {
                 Thread.Sleep(1000);
-                var previous = new Patient();
-                previous.IsInfected = false;
                 var keys = _queue.Keys.ToArray();
                 for (var i = 0; i < keys.Length; i++)
                     try
@@ -196,7 +188,6 @@ namespace Task15
                 }
             }
         }
-
         public void FreeDoctor(int docNum)
         {
             _doctors[docNum].IsWork = false;

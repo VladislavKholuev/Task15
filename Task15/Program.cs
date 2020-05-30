@@ -6,7 +6,7 @@ namespace Task15
     {
         public static void Main(string[] args)
         {
-            var hospital = new Hospital(2, 5, 10); 
+            var hospital = new Hospital(2, 10, 5); 
             hospital.StartSimulation();
             Console.ReadKey();
         }
